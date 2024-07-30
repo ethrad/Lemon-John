@@ -12,12 +12,14 @@ public class PlayerMovement : MonoBehaviour
     private Quaternion m_Rotation = Quaternion.identity;
     private Animator m_Animator;
     private Rigidbody m_Rigidbody;
+    private AudioSource m_AudioSource;
     
     // Start is called before the first frame update
     void Start()
     {
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
+        m_AudioSource = GetComponent<AudioSource>();
     }
 
     // 물리에 맞추어 호출
@@ -33,12 +35,22 @@ public class PlayerMovement : MonoBehaviour
         bool hasVerticalInput = !Mathf.Approximately(vertical, 0f);
         bool isWalking = hasHorizontalInput || hasVerticalInput;
         m_Animator.SetBool("IsWalking", isWalking);
+
+        if (isWalking)
+        {
+            if (!m_AudioSource.isPlaying)
+            {
+                m_AudioSource.Play();
+            }
+        }
+        else
+        {
+            m_AudioSource.Stop();
+        }
         
         // 파라미터: 현재 회전 값, 목표 회전 값, 각도의 변화, 크기의 변화
         Vector3 desiredForward = Vector3.RotateTowards(transform.forward, m_Movement, turnSpeed * Time.deltaTime, 0f);
         m_Rotation = Quaternion.LookRotation(desiredForward);
-        
-        
     }
 
     private void OnAnimatorMove()
